@@ -24,7 +24,7 @@ int server_config(const char* ip, uint16_t port, int backlog){
 
     if(result_of_bind == -1){
         handle_error("bind");
-	close(fd);
+	    close(fd);
         return -1;
     }
 
@@ -32,8 +32,8 @@ int server_config(const char* ip, uint16_t port, int backlog){
 
     if(result_of_listen == -1){
     	handle_error("listen");
-	close(fd);
-	return -1;
+    	close(fd);
+	    return -1;
     }
 
     return fd;

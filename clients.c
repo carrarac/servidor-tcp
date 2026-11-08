@@ -9,26 +9,12 @@ static void* error_msg(const char* msg){
 }
 
 void* handle_client(void* args){
-    int32_t *server_socket = (int32_t*)args;
+    int32_t client_socket = *((int32_t*)args);
 
-    if(*server_socket == -1)
-        return error_msg("handle_client invalid arg");
-
-    struct sockaddr_in client_address;
-    socklen_t client_addresslen = sizeof(struct sockaddr_in);
-
-    int32_t client_socket = accept(*server_socket, (struct sockaddr*)&client_address, &client_addresslen);
+    free(args);
 
     if(client_socket == -1)
-        return error_msg("accept client_socket");
-
-    char client_ip[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &client_address.sin_addr, client_ip, INET_ADDRSTRLEN);
-    char success[256] = {};
-    snprintf(success, sizeof(success), "Client connected -> %s:%d", client_ip, ntohs(client_address.sin_port));
-    printf("%s\n", success);
-
-    //TODO: client loop
+        return error_msg("handle_client invalid arg");
 
     char msg[256] = {};
     strncpy(msg, "ok", sizeof(msg));

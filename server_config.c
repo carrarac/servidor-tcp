@@ -10,7 +10,7 @@ int server_config(const char* ip, uint16_t port, int backlog){
 
     int optval = 1;
 
-    setsockopt(fd, IPPROTO_TCP, SO_REUSEADDR, &optval, sizeof(optval));
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
     struct sockaddr_in address = {};
     

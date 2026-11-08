@@ -16,11 +16,26 @@ void* handle_client(void* args){
     if(client_socket == -1)
         return error_msg("handle_client invalid arg");
 
-    char msg[256] = {};
-    strncpy(msg, "ok", sizeof(msg));
-    size_t bytes_sent = send(client_socket, msg, strlen(msg), 0);
+    char buffer[1024];
+    size_t bytes_recvd;
 
-    printf("%zu B\n", bytes_sent);
+    while(1){
+        memset(buffer, 0, sizeof(buffer));
+
+        bytes_recvd = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+
+        if(bytes_recvd < 0){
+            perror("erro ao receber dados do cliente");
+            break;
+        } else if(bytes_recvd == 0){
+            printf("cliente desconectou\n");
+            break;
+        }
+
+        printf("Mensagem recebida: %s", buffer);
+
+        send(client_socket, buffer, bytes_recvd, 0);
+    }
 
     close(client_socket);
     return NULL;

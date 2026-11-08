@@ -20,10 +20,15 @@ int main(int argc, char** argv){
     while(1){
 
         int32_t client_socket = accept(fd, (struct sockaddr*)&client_address, &client_addresslen);
-        if(client_socket){
+        if(client_socket == -1){
             perror("erro no accept");
             continue;
         }
+
+        char client_ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &client_address.sin_addr, client_ip, INET_ADDRSTRLEN);
+
+        printf("Cliente conectado %s:%d\n", client_ip, ntohs(client_address.sin_port));
 
         int32_t *new_socket = malloc(sizeof(int32_t));
 

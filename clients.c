@@ -13,28 +13,44 @@ void* handle_client(void* args){
 
     free(args);
 
-    if(client_socket == -1)
+    if(client_socket == -1 || !client_socket)
         return error_msg("handle_client invalid arg");
 
-    char buffer[1024];
-    size_t bytes_recvd;
+    char buffer[1024] = {};
+    char ret_msg[256] = {};
+    ssize_t bytes_recvd;
 
     while(1){
-        memset(buffer, 0, sizeof(buffer));
-
+        
         bytes_recvd = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
 
         if(bytes_recvd < 0){
-            perror("erro ao receber dados do cliente");
+            error_msg("erro ao receber dados do cliente");
             break;
         } else if(bytes_recvd == 0){
             printf("cliente desconectou\n");
             break;
         }
 
-        printf("Mensagem recebida: %s", buffer);
+	char* substr = strstr(buffer, "GET /");
 
-        send(client_socket, buffer, bytes_recvd, 0);
+       	if(substr){
+		printf("Requisitou GET: %s\n", substr);
+		strncpy(ret_msg, "HTTP/1.1 OK", sizeof(ret_msg));
+		send(client_socket, ret_msg, sizeof(ret_msg), 0);
+	}
+	else if(substr == buffer){
+		printf("Mensagem vazia\n");
+		strncpy(ret_msg, "Not Found", sizeof(ret_msg));
+		send(client_socket, ret_msg, sizeof(ret_msg), 0);
+	}
+	else {
+		printf("Requisicao nao reconhecida (404)\n");
+		strncpy(ret_msg, "404: Not Found", sizeof(ret_msg));
+		send(client_socket, ret_msg, sizeof(ret_msg), 0);
+	}
+	memset(ret_msg, 0, sizeof(ret_msg));
+	memset(buffer, 0, sizeof(buffer));	
     }
 
     close(client_socket);

@@ -1,12 +1,30 @@
 #include"clients.h"
 
-static void* error_msg(const char* msg){
+static void error_msg(const char* msg){
     char errmsg[256];
     snprintf(errmsg, sizeof(errmsg), "client: %s", msg);
     perror(errmsg);
 
-    return NULL;
+    return;
 }
+
+int init_index_cache(const char* filepath){
+	FILE* f = fopen(filepath, "rb");
+
+	if(!f){
+		char msg[256] = {};
+		snprintf(msg, sizeof(msg), "Erro ao abrir arquivo %s", filepath); 
+		error_msg(msg);
+		return -1;
+	}
+	struct stat st;
+	if(stat(filepath, &st) < 0){
+		fclose(f);
+		return -1;
+	}
+	char header[256] = {};
+}
+
 
 void* handle_client(void* args){
     int32_t client_socket = *((int32_t*)args);
@@ -14,7 +32,7 @@ void* handle_client(void* args){
     free(args);
 
     if(client_socket == -1 || !client_socket)
-        return error_msg("handle_client invalid arg");
+        return error_msg("handle_client argumento invalido");
 
     char buffer[1024] = {};
     char ret_msg[256] = {};
@@ -33,10 +51,10 @@ void* handle_client(void* args){
         }
 
 	char* substr = strstr(buffer, "GET /");
-
+	
        	if(substr){
 		printf("Requisitou GET: %s\n", substr);
-		strncpy(ret_msg, "HTTP/1.1 OK", sizeof(ret_msg));
+		strncpy(ret_msg, "", sizeof(ret_msg));
 		send(client_socket, ret_msg, sizeof(ret_msg), 0);
 	}
 	else if(substr == buffer){
